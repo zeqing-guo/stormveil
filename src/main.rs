@@ -1,5 +1,5 @@
 use std::{env, path::Path, io::{self, BufRead}, fs::File, collections::BTreeMap};
-use ethers_etherscan::{Client, account::{GenesisOption, TxListParams, Sort}};
+use ethers_etherscan::{Client, account::GenesisOption};
 use ethers_core::{utils::hex, types::{Chain, Address}};
 
 #[tokio::main]
@@ -32,9 +32,9 @@ async fn main() {
 
             let txs = client.get_transactions(
                 &a.parse().unwrap(), 
-                Some(TxListParams::new(0, 99999999, 0, 10000, Sort::Asc)),
+                None,
             ).await.unwrap();
-            println!("num: {}", txs.len());
+            println!("num of txs: {}", txs.len());
             for tx in txs {
                 match tx.input {
                     GenesisOption::Some(input) => {
@@ -42,7 +42,10 @@ async fn main() {
                         let sig:[u8; 4] = [input_vec[0], input_vec[1], input_vec[2], input_vec[3]];
                         match sig_to_func_name.get(&sig) {
                             Some(name) => {
-                                result.insert(sig, name.clone());
+                                result.insert(
+                                    sig, 
+                                    format!("{}, {:#x}", name.clone(), tx.hash.value().unwrap())
+                                );
                             },
                             None => {},
                         }
@@ -54,6 +57,7 @@ async fn main() {
             for (k, v) in result {
                 println!("{}, 0x{}, {}", a, hex::encode(&k), v);
             }
+            println!();
         }
     }
 }
