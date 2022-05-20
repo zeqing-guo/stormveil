@@ -1,0 +1,14 @@
+[package]
+name = "stormveil"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ethers-core = { git = "https://github.com/gakonst/ethers-rs" }
+ethers-etherscan = { git = "https://github.com/gakonst/ethers-rs" }
+tokio = { version = "1.18.2", features = ["full"] }
+
+[profile.release]
+opt-level = 3
