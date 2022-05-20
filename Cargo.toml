@@ -6,8 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ethers-core = { git = "https://github.com/gakonst/ethers-rs" }
-ethers-etherscan = { git = "https://github.com/gakonst/ethers-rs" }
+ethers-core = { git = "https://github.com/zeqing-guo/ethers-rs" }
+ethers-etherscan = { git = "https://github.com/zeqing-guo/ethers-rs" }
 tokio = { version = "1.18.2", features = ["full"] }
 
 [profile.release]

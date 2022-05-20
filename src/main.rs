@@ -1,6 +1,6 @@
 use std::{env, path::Path, io::{self, BufRead}, fs::File, collections::BTreeMap};
 use ethers_etherscan::{Client, account::{GenesisOption, TxListParams, Sort}};
-use ethers_core::{utils::hex, types::Chain};
+use ethers_core::{utils::hex, types::{Chain, Address}};
 
 #[tokio::main]
 async fn main() {
@@ -11,9 +11,17 @@ async fn main() {
 
     for addr in addrs {
         if let Ok(a) = addr {
+            println!("address: {}", a);
             let mut sig_to_func_name: BTreeMap<[u8; 4], String> = BTreeMap::new();
             let mut result: BTreeMap<[u8; 4], String> = BTreeMap::new();
-            let contract_abi = client.contract_abi(a.parse().unwrap()).await.unwrap();
+            let contract_abi_verified = client.contract_source_code(a.parse().unwrap()).await.unwrap();
+            let mut contract_addr: Address = a.clone().parse().unwrap();
+            for item in contract_abi_verified.items {
+                if !item.implementation.is_empty() {
+                    contract_addr = item.implementation.parse().unwrap();
+                }
+            }
+            let contract_abi = client.contract_abi(contract_addr).await.unwrap();
             let functions = contract_abi.functions();
             for function in functions {
                 sig_to_func_name.insert(
@@ -24,8 +32,9 @@ async fn main() {
 
             let txs = client.get_transactions(
                 &a.parse().unwrap(), 
-                Some(TxListParams::new(10950429+1, 99999999, 0, 10000, Sort::Asc)),
+                Some(TxListParams::new(0, 99999999, 0, 10000, Sort::Asc)),
             ).await.unwrap();
+            println!("num: {}", txs.len());
             for tx in txs {
                 match tx.input {
                     GenesisOption::Some(input) => {
