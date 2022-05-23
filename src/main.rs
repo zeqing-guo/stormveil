@@ -14,9 +14,13 @@ async fn main() {
             println!("address: {}", a);
             let mut sig_to_func_name: BTreeMap<[u8; 4], String> = BTreeMap::new();
             let mut result: BTreeMap<[u8; 4], String> = BTreeMap::new();
-            let contract_abi_verified = client.contract_source_code(a.parse().unwrap()).await.unwrap();
+            let contract_abi_verified = client.contract_source_code(a.parse().unwrap()).await;
+            if let Err(err) = contract_abi_verified {
+                println!("{}", err);
+                continue;
+            }
             let mut contract_addr: Address = a.clone().parse().unwrap();
-            for item in contract_abi_verified.items {
+            for item in contract_abi_verified.unwrap().items {
                 if !item.implementation.is_empty() {
                     contract_addr = item.implementation.parse().unwrap();
                 }
